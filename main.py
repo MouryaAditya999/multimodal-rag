@@ -132,7 +132,7 @@ def run_query(question, mode="hybrid"):
         documents = truncate_contexts(results["documents"])
         metadatas = results["metadatas"][: len(documents)]
 
-    def _safe(text): return text.encode('ascii', 'replace').decode('ascii')
+    def _safe(text): return text.encode('utf-8', 'replace').decode('utf-8')
     print("=" * 60)
     print("RETRIEVED CONTEXT")
     print("=" * 60)
@@ -151,7 +151,7 @@ def run_query(question, mode="hybrid"):
     print("\n" + "=" * 60)
     print("GENERATED ANSWER")
     print("=" * 60)
-    print(answer.encode('ascii', 'replace').decode('ascii'))
+    print(_safe(answer))
     print("=" * 60)
 
 
@@ -165,6 +165,11 @@ def run_ablation(sample_size=None):
     from app.evaluation.evaluate import run_ablation
 
     run_ablation(sample_size=sample_size)
+
+
+def run_generate_synthetic():
+    from app.evaluation.generate_synthetic_dataset import main as gen_main
+    gen_main()
 
 
 def main():
@@ -215,6 +220,10 @@ def main():
         help="Limit number of QA pairs per experiment (default: all 20)",
     )
 
+    subparsers.add_parser(
+        "generate-synthetic", help="Generate synthetic QA pairs using local LLM (Track A dataset)"
+    )
+
     args = parser.parse_args()
 
     if args.command == "ingest":
@@ -239,6 +248,8 @@ def main():
         run_evaluate(sample_size=args.sample, mode=args.mode)
     elif args.command == "ablation":
         run_ablation(sample_size=args.sample)
+    elif args.command == "generate-synthetic":
+        run_generate_synthetic()
     else:
         parser.print_help()
 

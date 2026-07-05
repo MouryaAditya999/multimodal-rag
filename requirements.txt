@@ -1,34 +1,53 @@
-# Core RAG pipeline
+# ============================================================
+# Multimodal RAG System - Fully Local
+# ============================================================
+
+# --------------- Core RAG Pipeline ---------------
 chromadb>=0.5.0
 sentence-transformers>=3.0.0
 llama-cpp-python==0.2.90
 huggingface-hub>=0.23.0
 numpy>=1.24.0
 
-# Sparse retrieval
+# --------------- Sparse Retrieval ---------------
 rank-bm25>=0.2.2
 
-# Document parsing
+# --------------- Document Parsing ---------------
 pymupdf>=1.24.0
 python-docx>=1.1.0
 langchain-text-splitters>=0.3.0
 
-# Tables
+# --------------- Tables ---------------
 pandas>=2.0.0
 openpyxl>=3.1.0
 
-# Images
+# --------------- Images ---------------
 pillow>=10.0.0
 
-# API
+# --------------- API ---------------
 fastapi>=0.100.0
 uvicorn>=0.20.0
 sse-starlette>=1.6.0
 
-# Offline evaluation (pinned for compatibility)
+# --------------- Offline Evaluation ---------------
 ragas==0.2.15
 datasets>=2.14.0
 langchain==0.3.22
 langchain-core==0.3.49
 langchain-community==0.3.20
 langchain-openai==0.3.11
+
+# ============================================================
+# Optional: Uncomment if you need these features
+# ============================================================
+
+# OCR for scanned PDFs (choose one):
+# easyocr>=1.7.0
+# pytesseract>=0.3.10
+
+# Advanced PDF parsing (larger model):
+# docling>=2.0.0
+
+# Image captioning (935MB model download):
+# transformers>=4.30.0
+# torch>=2.0.0

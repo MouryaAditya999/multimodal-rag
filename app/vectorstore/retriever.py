@@ -17,7 +17,6 @@ def get_context_for_query(query, mode="hybrid"):
 
 def _dense_retrieve(query):
     from app.embeddings.embedder import embed_text
-    from app.vectorstore.chroma_store import get_collection
 
     collection = get_collection()
     query_embedding = embed_text(query, is_query=True).tolist()
@@ -44,6 +43,7 @@ def _hybrid_rerank_retrieve(query):
 
 
 def retrieve(query, top_k=TOP_K):
+    from app.embeddings.embedder import embed_text
     collection = get_collection()
     query_embedding = embed_text(query, is_query=True).tolist()
     results = collection.query(query_embeddings=[query_embedding], n_results=top_k)

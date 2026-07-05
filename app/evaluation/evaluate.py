@@ -10,6 +10,7 @@ from ragas import evaluate
 from ragas.embeddings import LangchainEmbeddingsWrapper
 from ragas.llms import LangchainLLMWrapper
 from ragas.metrics import (
+    answer_correctness,
     answer_relevancy,
     context_precision,
     context_recall,
@@ -30,6 +31,7 @@ TARGETS = {
     "answer_relevancy": 0.80,
     "context_precision": 0.75,
     "context_recall": 0.70,
+    "answer_correctness": 0.75,
     "latency_first_token_sec": 3.0,
     "latency_full_response_sec": 20.0,
 }
@@ -123,7 +125,7 @@ def run_evaluation(sample_size=None, mode="dense", output_path=None):
     )
 
     run_config = RunConfig(timeout=600, max_workers=1, max_retries=2)
-    metrics = [faithfulness, answer_relevancy, context_precision, context_recall]
+    metrics = [faithfulness, answer_relevancy, context_precision, context_recall, answer_correctness]
     scores = {}
 
     for metric in metrics:
@@ -178,6 +180,8 @@ def run_evaluation(sample_size=None, mode="dense", output_path=None):
             >= TARGETS["context_precision"],
             "context_recall": (scores.get("context_recall") or 0)
             >= TARGETS["context_recall"],
+            "answer_correctness": (scores.get("answer_correctness") or 0)
+            >= TARGETS["answer_correctness"],
             "latency_total": avg_total <= TARGETS["latency_full_response_sec"],
         },
     }
@@ -219,7 +223,10 @@ def _print_report(report, output_path):
     print(f"  Avg retrieval:   {report['latency']['avg_retrieval_sec']:.3f}s")
     print(f"  Avg generation:  {report['latency']['avg_generation_sec']:.3f}s")
     print(f"  Avg total:       {report['latency']['avg_total_sec']:.3f}s")
-    print(f"\nReport saved to: {output_path}")
+    targets_met = report.get("targets_met", {})
+    met_count = sum(1 for v in targets_met.values() if v)
+    print(f"\nTargets met: {met_count}/{len(targets_met)}")
+    print(f"Report saved to: {output_path}")
     print("=" * 60)
 
 
@@ -227,18 +234,19 @@ def _print_ablation_report(results):
     print("\n" + "=" * 60)
     print("ABLATION STUDY - SUMMARY")
     print("=" * 60)
-    header = f"{'Mode':<20} {'Faith':<10} {'Relev':<10} {'Prec':<10} {'Recall':<10} {'Latency':<10}"
+    header = f"{'Mode':<20} {'Faith':<9} {'Relev':<9} {'Correct':<9} {'Prec':<9} {'Recall':<9} {'Latency':<9}"
     print(header)
-    print("-" * 70)
+    print("-" * 80)
     for mode, report in results.items():
         s = report["ragas_scores"]
         lat = report["latency"]["avg_total_sec"]
         print(
-            f"{mode:<20} {s.get('faithfulness', 0):<10.4f} "
-            f"{s.get('answer_relevancy', 0):<10.4f} "
-            f"{s.get('context_precision', 0):<10.4f} "
-            f"{s.get('context_recall', 0):<10.4f} "
-            f"{lat:<10.3f}s"
+            f"{mode:<20} {s.get('faithfulness', 0):<9.4f} "
+            f"{s.get('answer_relevancy', 0):<9.4f} "
+            f"{s.get('answer_correctness', 0):<9.4f} "
+            f"{s.get('context_precision', 0):<9.4f} "
+            f"{s.get('context_recall', 0):<9.4f} "
+            f"{lat:<9.3f}s"
         )
     print("=" * 60)
 

@@ -20,10 +20,10 @@ CHUNK_OVERLAP = 64
 TOP_K = 8
 TOP_K_DENSE = 20
 TOP_K_BM25 = 20
-TOP_K_RERANK = 5
+TOP_K_RERANK = 5          # Reranker is mandatory per spec: reduces 20 -> 5 best
 TOP_K_HYBRID = 20
 
-# RRF weights (per project spec)
+# RRF weights (per project spec: Dense=0.6, BM25=0.4)
 RRF_WEIGHT_DENSE = 0.6
 RRF_WEIGHT_BM25 = 0.4
 
@@ -31,15 +31,22 @@ RRF_WEIGHT_BM25 = 0.4
 BM25_K1 = 1.5
 BM25_B = 0.75
 
-# Reranker (optional - improves precision)
+# Reranker (mandatory per project spec - largest accuracy improvement)
 RERANKER_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 USE_RERANKER = True
 
 # Multimodal options
 EXTRACT_TABLES = True
 EXTRACT_IMAGES = True
-USE_BLIP_CAPTIONING = False       # requires ~935MB model download
-USE_CLIP_EMBEDDINGS = False       # requires ~338MB model download
+USE_BLIP_CAPTIONING = False       # ~935MB model, disable if low on RAM
+USE_CLIP_EMBEDDINGS = True        # ~338MB, enables image similarity search
+
+# OCR for scanned PDFs (optional - install Tesseract or EasyOCR)
+USE_OCR = False
+OCR_ENGINE = "easyocr"            # "tesseract" or "easyocr"
+
+# Document parsing backend (pymupdf is default, docling is optional)
+USE_DOCLING = False               # ~500MB model for advanced PDF layout analysis
 
 # LLM settings
 LLM_N_CTX = 2048
